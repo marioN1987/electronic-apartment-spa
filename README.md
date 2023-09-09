@@ -1,31 +1,36 @@
-Update composer dependencies run: composer update
+#### update composer packages
+composer update
 
-Install packages: npm install
+#### required install packages
+npm install
 
-<!-- required, populate db tables -->
+#### required, populate db tables
 php artisan migrate
 
-<!-- optional, fill all tables with dummy data -->
+#### optional, fill all tables with dummy data
 php artisan migrate --seed
 
-<!-- required, fill states with house states, in design, under construction -->
+#### required, fill states with house states: in design, under construction
 php artisan db:seed --class=StateSeeder
 
 ## Validation
-In create house, apartments no and entrances no should be between 1 - 4
-Front end and back end validation is applied
+When creating new house, apartments no and entrances no should be between 1 - 4.
+Front and Back end validation is applied
 
 ## Database
 I have created 3 tables STATES, HOUSES, Floors
 
-States has different states: in design, planning  etc.
+Houses table: has state_id (FK) 
 
-State id is FK in houses tbl.
+States table: name column has different states: in design, planning  etc.
 
-Floors table has houses id (FK) and 2 columns apartments and entrance no.
+Floors table: houses id (FK) and 2 columns apartments and entrance no.
 
 ### Controller
 HouseController contains CRUD actions
+
+### Request forms for back end validation
+I have created CreateHouseRequest and UpdateHouseRequest for BE validation.
 
 ### Model
 House, Floor, State
