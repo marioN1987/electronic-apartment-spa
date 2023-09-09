@@ -1,14 +1,14 @@
-composer update
+Update composer dependencies run: composer update
 
-npm install
+Install packages: npm install
 
-//required, populate db tables
+<!-- required, populate db tables -->
 php artisan migrate
 
-//optional, fill all tables with dummy data
+<!-- optional, fill all tables with dummy data -->
 php artisan migrate --seed
 
-//required, fill states with house states, in design, under construction
+<!-- required, fill states with house states, in design, under construction -->
 php artisan db:seed --class=StateSeeder
 
 ## Validation
@@ -33,7 +33,9 @@ House, Floor, State
 ### FE validation
 
 #### UPDATE House
-    fillFloorsObjArr() fills object array with house floors data from database
-    isValid() checks if house state selected and the 2 first floors input fields have been filled (required)
-    checkApartmentsNoInRange() checks input to be between 1-4 apartments per floor 
+fillFloorsObjArr() fills object array with house floors data from database
+
+isValid() checks if house state selected and the 2 first floors input fields have been filled (required)
+
+checkApartmentsNoInRange() checks input to be between 1-4 apartments per floor 
 
