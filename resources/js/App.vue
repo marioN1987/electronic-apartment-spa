@@ -1,7 +1,13 @@
 <template>
     <div id="nav">
-        <router-link to="/">Home</router-link>
-        <router-link to="/create">Create</router-link>
+        <ul class="hover-effect">
+            <li>
+                <router-link to="/">Home</router-link>
+            </li>
+            <li>
+                <router-link to="/create">Create House</router-link>
+            </li>
+        </ul>
     </div>
     <router-view></router-view>
 </template>
@@ -12,19 +18,16 @@
         display: flex;
         column-gap: 20px;
         padding: 20px;
-        > a {
-            text-decoration: none;
-            transition: all .3s ease;
-            color: black;
 
-            &:hover {
-                border-bottom: 1px solid;
-            }
+        > ul {
+            display: flex;
+            column-gap: 20px;
+            > li {
+                display: inline-block;
 
-            &:active,
-            &:focus,
-            &:visited {
-                color: black;
+                & + li {
+                    margin-top: unset;
+                }
             }
         }
     }

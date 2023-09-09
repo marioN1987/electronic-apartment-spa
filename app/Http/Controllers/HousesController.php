@@ -42,7 +42,7 @@ class HousesController extends Controller
             'house' => [
                 'state_id' => $house->state_id,
                 'floors' => $house->floors
-            ];
+            ]
         ]);
     }
 
@@ -60,13 +60,18 @@ class HousesController extends Controller
             //if floor id exists means there is floor and update, otherwise create new one
             $floorId = isset($floorArr['id']) ? $floorArr['id'] : null;
 
-            if ($floorId) {
+            //if user deleted floor
+            if ($floorId && (!(isset($floorArr['apartments_no']) && isset($floorArr['entrances'])))) {
+                Floor::where('id', $floorId)->delete();
+            //if floor id exists means there is floor and update
+            } else if ($floorId) {
                 Floor::where([
                     ['house_id', $validated['house_id']], 
                     ['id', $floorId]
                 ])->update([
                     'apartments_per_floor' => $floorArr['apartments_no'], 'entrances' => $floorArr['entrances']
                 ]);
+            //otherwise create new one
             } else {
                 $floor = new Floor();
                 $floor->house_id = $validated['house_id'];

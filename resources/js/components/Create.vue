@@ -14,13 +14,16 @@ const options = ref([
 <template>
     <div class="create-house-section">
         <h2 v-if="success">House successfully created</h2>
+        
         <div class="form-errors" v-if="errors">
+            <h4>Form errors</h4>
             <ul>
                 <li v-for="error in errors">
                     {{ error }}
                 </li>
             </ul>
         </div>
+
         <div class="form-group" :class="{'invalid': !stateSelected && showErrors}">
             <label>Select house state (required)</label>
             <select v-model="stateSelected">
@@ -33,7 +36,7 @@ const options = ref([
             <div class="form-group-wrapper" v-for="(floor, index) in floors" :key="index">
                 <div class="form-group" :class="{'invalid': !floor.apartments_no && showErrors }">
                     <label> Floor {{ index+1 }} apartments {{ (index < 2) ? '(required)' : null }}</label>
-                    <p class="not-in-range" v-if="floor.notInRange">Apartments number should be between 1 and 10</p>
+                    <p class="not-in-range" v-if="floor.notInRange">Apartments number should be between 1 and 4</p>
                     <input type="number" v-model="floor.apartments_no" placeholder="Enter floor apartments no"/>
                 </div>
                 <div class="form-group" :class="{'invalid': !floor.entrances && showErrors }">
@@ -155,7 +158,7 @@ export default {
         resetVariables() {
             this.stateSelected = null;
             this.floors.forEach(floor => {
-                for (const [key, value] of Object.entries(floor)) {
+                for (const [,] of Object.entries(floor)) {
                     floor.apartments_no = null;
                     floor.entrances = null;
                 }
@@ -200,17 +203,10 @@ export default {
                         this.resetVariables();
                     }
                 }).catch((error) => {
-                    let index = 0;
                     for (const [key, value] of Object.entries(error.response.data.errors)) {
                         for (const [key1, value1] of Object.entries(value)) {
-                            let temp = value1;
-                            if (temp.includes('apartments_no')){
-                                temp = temp.replace(`floors.${index}.apartments_no`, `floor ${index+1} apartments no`);
-                            } else if (temp.includes('entrances')) {
-                                temp = temp.replace(`floors.${index}.entrances`, `floor ${index+1} entrances no`);
-                            }
-                            this.errors.push(temp);
-                            index++;   
+                            let errorStr = value1.replace(/(\d+)+/g, function(match, number) { return parseInt(number)+1; });
+                            this.errors.push(errorStr);
                         }
                     }
                 });

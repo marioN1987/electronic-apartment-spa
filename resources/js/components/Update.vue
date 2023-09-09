@@ -15,13 +15,14 @@ const options = ref([
     <div class="update-house-section">
         <h2 v-if="success">House successfully updated</h2>
 
-        <!-- <div class="form-errors" v-if="errors">
+        <div class="form-errors" v-if="errors">
             <ul>
                 <li v-for="error in errors">
                     {{ error }}
                 </li>
             </ul>
-        </div> -->
+        </div>
+
         <div class="form-group" :class="{'invalid': !stateSelected && showErrors}">
             <label>Select house state (required)</label>
             <select v-model="stateSelected">
@@ -34,7 +35,7 @@ const options = ref([
             <div class="form-group-wrapper" v-for="(floor, index) in floors" :key="index">
                 <div class="form-group" :class="{'invalid': !floor.apartments_no && showErrors }">
                     <label> Floor {{ index+1 }} apartments {{ (index < 2) ? '(required)' : null }}</label>
-                    <p class="not-in-range" v-if="floor.notInRange">Apartments number should be between 1 and 10</p>
+                    <p class="not-in-range" v-if="floor.notInRange">Apartments number should be between 1 and 4</p>
                     <input type="number" v-model="floor.apartments_no" placeholder="Enter floor apartments no"/>
                 </div>
                 <div class="form-group" :class="{'invalid': !floor.entrances && showErrors }">
@@ -158,6 +159,31 @@ export default {
     },  
 
     methods: {
+        resetVariables() {
+            this.stateSelected = null;
+            this.floors.forEach(floor => {
+                for (const [,] of Object.entries(floor)) {
+                    floor.apartments_no = null;
+                    floor.entrances = null;
+                }
+            });
+        },
+
+        //use should fill both values for each floor
+        //if one of them is empty, the other one is empty too
+        isFloorDataDeleted() {
+            let valid = true;
+            this.floors.forEach(floor => {
+                if (floor.apartments_no == "" || floor.entrances == "") {
+                    floor.entrances = null;
+                    floor.apartments_no = null;
+                    valid = false;
+                }
+            });
+
+            return valid;
+        },
+
         fillFloorsObjArr() {
             this.house.floors.forEach((floorObj, index) => {
                 this.floors[index].id = floorObj['id'];
@@ -166,7 +192,7 @@ export default {
             });
         },
 
-        deleteNotInRangeAndNullKeys() {
+        deleteNotInRangeAndNullValues() {
             this.floors.forEach(floor => {
                 for (const [key, value] of Object.entries(floor)) {
                     delete floor.notInRange;
@@ -187,11 +213,13 @@ export default {
                 return;
             }
 
+            if (!this.isFloorDataDeleted()) {
+                return;
+            }
+
+            this.deleteNotInRangeAndNullValues();
+
             this.showErrors = false;
-
-            this.deleteNotInRangeAndNullKeys();
-
-            console.log(this.floors);
 
             const data = {
                 'house_id': this.houseId,
@@ -204,10 +232,22 @@ export default {
                     console.log(response);
                     if (response.status == 200) {
                         this.success = true;
-                        //this.$router.push('home');
+                        this.resetVariables();
                     }
                 }).catch((error) => {
-                    console.log(error);
+                    let index = 0;
+                    for (const [key, value] of Object.entries(error.response.data.errors)) {
+                        for (const [key1, value1] of Object.entries(value)) {
+                        let temp = value1;
+                            if (temp.includes('apartments_no')) {
+                                temp = temp.replace(`floors.${index}.apartments_no`, `floor ${index+1} apartments no`);
+                            } else if (temp.includes('entrances')) {
+                                temp = temp.replace(`floors.${index}.entrances`, `floor ${index+1} entrances no`);
+                            }
+                            this.errors.push(temp);
+                            index++;   
+                        }
+                    }
                 });
         },
 

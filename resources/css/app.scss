@@ -5,4 +5,55 @@ body {
     p {
         margin: 0px;
     }
+
+    ul {
+        padding: 0px;
+        list-style-position: inside;
+    }
+
+    .form-errors {
+        color: red;
+    }
+
+    ul.hover-effect {
+        list-style-type: none;
+        margin: 0px;
+
+        > li {
+            position: relative;
+            padding-bottom: 3px;
+
+            > a {
+                color: black;
+                text-decoration: none;
+                &:visited,
+                &:focus {
+                    color: black;
+                }
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            &::after {
+                content: '';
+                display: block;
+                margin: auto;
+                height: 1px;
+                width: 0px;
+                background: transparent;
+                transition: width .5s ease, background-color .5s ease;
+            }
+
+            &:hover:after {
+                width: 100%;
+                background: blue;
+            }
+
+            & + li {
+                margin-top: 10px;
+            }
+        }
+    }
 }
