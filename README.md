@@ -5,10 +5,14 @@ composer update
 npm install
 
 ### Required, populate db tables
-php artisan migrate
+php artisan migrate:refresh
+
+### IF have issues, delete all created tables
+
+php artisan migrate:rollback
 
 ### Optional, fill all tables with dummy data
-php artisan migrate --seed
+php artisan migrate:refresh --seed
 
 ### Required, fill states with house states: in design, under construction
 php artisan db:seed --class=StateSeeder
