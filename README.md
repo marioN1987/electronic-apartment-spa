@@ -62,4 +62,10 @@ Fill .env file with database credentials
 
 run in terminal **php artisan serve**
 
+### Download the project
+
+git clone git@github.com:marioN1987/electronic-apartment-spa.git
+
+or visit https://github.com/marioN1987/electronic-apartment-spa and download it
+
 
