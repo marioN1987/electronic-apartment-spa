@@ -1,20 +1,21 @@
-#### update composer packages
+### Update composer packages
 composer update
 
-#### required install packages
+### Required, install packages
 npm install
 
-#### required, populate db tables
+### Required, populate db tables
 php artisan migrate
 
-#### optional, fill all tables with dummy data
+### Optional, fill all tables with dummy data
 php artisan migrate --seed
 
-#### required, fill states with house states: in design, under construction
+### Required, fill states with house states: in design, under construction
 php artisan db:seed --class=StateSeeder
 
 ## Validation
-When creating new house, apartments no and entrances no should be between 1 - 4.
+When creating new house, apartments no and entrances no should be between 0 - 4. 
+If user doesn't fill floor apaprtments or entrances 0 value is saved in table.
 Front and Back end validation is applied
 
 ## Database
@@ -42,5 +43,19 @@ fillFloorsObjArr() fills object array with house floors data from database
 
 isValid() checks if house state selected and the 2 first floors input fields have been filled (required)
 
-checkApartmentsNoInRange() checks input to be between 1-4 apartments per floor 
+### MIGRATION
+Populate tables in database and their relationships
+
+### SEEDER 
+Fills tables with dummy data for testing purposes
+
+### FACTORIES
+Define random data for tables columns
+
+
+### Run application
+Fill .env file with database credentials
+
+run in terminal **php artisan serve**
+
 
