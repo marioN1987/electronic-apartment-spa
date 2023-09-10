@@ -24,9 +24,9 @@ class UpdateHouseRequest extends FormRequest
         return [
             'house_id' => 'required|exists:houses,id',
             'house_state' => 'required|exists:states,id',
-            'floors.*.id' => 'sometimes|required|exists:floors,id',
-            'floors.*.apartments_no' => 'sometimes|required|numeric|min:1|max:4',
-            'floors.*.entrances' => 'sometimes|required|numeric|min:1|max:4',
+            'floors.*.id' => 'required|exists:floors,id',
+            'floors.*.apartments_no' => 'required|numeric|min:0|max:4',
+            'floors.*.entrances' => 'required|numeric|min:0|max:4',
         ];
     }
 

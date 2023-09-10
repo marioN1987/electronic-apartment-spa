@@ -23,8 +23,8 @@ class CreateHouseRequest extends FormRequest
     {
         return [
             'house_state' => 'required|exists:states,id',
-            'floors.*.apartments_no' => 'sometimes|required|numeric|min:1|max:4',
-            'floors.*.entrances' => 'sometimes|required|numeric|min:1|max:4',
+            'floors.*.apartments_no' => 'required|numeric|min:0|max:4',
+            'floors.*.entrances' => 'required|numeric|min:0|max:4',
         ];
     }
 
