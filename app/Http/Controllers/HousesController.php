@@ -11,7 +11,13 @@ use App\Http\Requests\UpdateHouseRequest;
 use Illuminate\Support\Str;
 
 class HousesController extends Controller
-{
+{   
+    public function getStates() {
+        return response()->json([
+            'states' => State::all()
+        ]);
+    }
+
     public function list() {
         $all = House::all();
 
@@ -27,27 +33,31 @@ class HousesController extends Controller
             'houses' => $housesArr
         ]);
     }
-    
-    public function getHouseById($id) {
+
+    public function houseIdExists($id) {
         //check if id exists in table
         $exists = House::where('id', $id)->exists();
 
         if (!$exists) {
             abort(404);
         }
+    }
+
+    public function getHouseById($id) {
+
+        $this->houseIdExists($id);
 
         $house = House::find($id);
 
         return response()->json([
             'house' => [
-                'state_id' => $house->state_id,
-                'floors' => $house->floors
-            ]
-        ]);
-    }
+                'selected_state_name' => $house->state->name,
+                'selected_state_id' => $house->state_id,
+                'floors' => $house->floors,
+                'states' => State::all()
+            ],
 
-    public function delete(Request $request) {
-        dd($request->house_id);
+        ]);
     }
 
     public function update(UpdateHouseRequest $request) {
@@ -108,6 +118,14 @@ class HousesController extends Controller
             }
         }
         
+        return response('', 200);
+    }
+
+    public function delete($id) {
+        $this->houseIdExists($id);
+
+        House::where('id', $id)->delete();
+
         return response('', 200);
     }
 }
