@@ -19,10 +19,13 @@ Route::get('/', function () {
 
 Route::get('list', [HousesController::class, 'list'])->name('getAllHouses');
 
-Route::post('create-house', [HousesController::class, 'create'])->name('createHouse');
-
-Route::post('/update-house', [HousesController::class, 'update'])->name('updateHouse');
+Route::get('get-states', [HousesController::class, 'getStates'])->name('getHouseStates');
 
 Route::get('load-house/{id}', [HousesController::class, 'getHouseById'])->name('loadHouse');
 
-Route::get('delete/{house_id}', [HousesController::class, 'delete'])->name('deleteHouse');
+Route::post('/create-house', [HousesController::class, 'create'])->name('createHouse');
+
+Route::post('/update-house', [HousesController::class, 'update'])->name('updateHouse');
+
+Route::post('/delete-house/{id}', [HousesController::class, 'delete'])->name('deleteHouse');
+
