@@ -1,21 +1,9 @@
-<script setup>
-import axios from 'axios';
-import { ref } from 'vue';
-
-const options = ref([
-  { text: 'Planning', value: '1' },
-  { text: 'In Design', value: '2' },
-  { text: 'Under Construction', value: '3' },
-  { text: 'Ready', value: '4' }
-]);
-
-</script>
-
 <template>
     <div class="create-house-section">
-        <h2 v-if="success">House successfully created</h2>
+        <h2>Create new house</h2>
+        <h4 v-if="success">House successfully created</h4>
         
-        <div class="form-errors" v-if="errors">
+        <div class="form-errors" v-if="errors.length > 0">
             <h4>Form errors</h4>
             <ul>
                 <li v-for="error in errors">
@@ -27,8 +15,9 @@ const options = ref([
         <div class="form-group" :class="{'invalid': !stateSelected && showErrors}">
             <label>Select house state (required)</label>
             <select v-model="stateSelected">
-                <option v-for="option in options" :key="option.value" :value="option.value">
-                    {{ option.text }}
+                <option selected value="">Please select state ...</option>
+                <option v-for="option in states" :key="option.id" :value="option.id">
+                    {{ option.name }}
                 </option>
             </select>
         </div>
@@ -96,7 +85,8 @@ const options = ref([
 export default {
     data() {
         return {
-            stateSelected: null,
+            stateSelected: "",
+            states: [],
             floors: [
                 {
                     apartments_no: null,
@@ -109,14 +99,14 @@ export default {
                     entrances: null
                 },
                 {
-                    apartments_no: null,
+                    apartments_no: 0,
                     notInRange: false,
-                    entrances: null
+                    entrances: 0
                 },
                 {
-                    apartments_no: null,
+                    apartments_no: 0,
                     notInRange: false,
-                    entrances: null
+                    entrances: 0
                 }
             ],
             errors: [],
@@ -140,7 +130,7 @@ export default {
             this.floors.forEach(floor => {
                 for (const [key, value] of Object.entries(floor)) {
                     if (key === 'apartments_no') {
-                        if (floor[key] && (floor[key] < 1 || floor[key] > 4)) {
+                        if (floor[key] && (floor[key] <= 0 || floor[key] > 4)) {
                             inRange = false;
                             floor.notInRange = true;
                             floor.apartments_no = null;
@@ -154,6 +144,19 @@ export default {
     },
 
     methods: {
+        zeroEmptyValues() {
+            this.floors.forEach(floor => {
+                for (const [,] of Object.entries(floor)) {
+                    if (floor.apartments_no == "") {
+                        floor.apartments_no = 0;
+                    }
+
+                    if (floor.entrances == "") {
+                        floor.entrances = 0;
+                    }
+                }
+            });
+        },
 
         resetVariables() {
             this.stateSelected = null;
@@ -161,17 +164,6 @@ export default {
                 for (const [,] of Object.entries(floor)) {
                     floor.apartments_no = null;
                     floor.entrances = null;
-                }
-            });
-        },
-
-        deleteNotInRangeAndNullKeys() {
-            this.floors.forEach(floor => {
-                for (const [key, value] of Object.entries(floor)) {
-                    delete floor.notInRange;
-                    if (!value) {
-                        delete floor[key];
-                    }
                 }
             });
         },
@@ -186,9 +178,9 @@ export default {
                 return;
             }
 
-            this.showErrors = false;
+            this.zeroEmptyValues();
 
-            this.deleteNotInRangeAndNullKeys();
+            this.showErrors = false;
 
             const data = {
                 'house_state': this.stateSelected,
@@ -197,20 +189,36 @@ export default {
 
             axios.post('create-house',data)
                 .then((response) => {
-                    console.log(response);
                     if (response.status == 200) {
                         this.success = true;
                         this.resetVariables();
                     }
                 }).catch((error) => {
-                    for (const [key, value] of Object.entries(error.response.data.errors)) {
-                        for (const [key1, value1] of Object.entries(value)) {
-                            let errorStr = value1.replace(/(\d+)+/g, function(match, number) { return parseInt(number)+1; });
-                            this.errors.push(errorStr);
+                    if (error) {
+                        for (const [key, value] of Object.entries(error.response.data.errors)) {
+                            for (const [key1, value1] of Object.entries(value)) {
+                                let errorStr = value1.replace(/(\d+)+/g, function(match, number) { return parseInt(number)+1; });
+                                this.errors.push(errorStr);
+                            }
                         }
                     }
                 });
+        },
+
+        getStates() {
+            axios.get('/get-states')
+                    .then((response)=>{
+                        this.states = response.data.states;
+                    }).catch((error) => { 
+                        if (error) {
+                            console.log(error);
+                        }  
+                    });
         }
+    },
+
+    mounted() {
+        this.getStates();
     }
 }
 

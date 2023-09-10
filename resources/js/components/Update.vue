@@ -1,19 +1,7 @@
-<script setup>
-import axios from 'axios';
-import { ref } from 'vue';
-
-const options = ref([
-  { text: 'Planning', value: '1' },
-  { text: 'In Design', value: '2' },
-  { text: 'Under Construction', value: '3' },
-  { text: 'Ready', value: '4' }
-]);
-
-</script>
-
 <template>
     <div class="update-house-section">
-        <h2 v-if="success">House successfully updated</h2>
+        <h2>Update house {{ houseId }}</h2>
+        <h4 v-if="success">House successfully updated</h4>
 
         <div class="form-errors" v-if="errors">
             <ul>
@@ -26,8 +14,8 @@ const options = ref([
         <div class="form-group" :class="{'invalid': !stateSelected && showErrors}">
             <label>Select house state (required)</label>
             <select v-model="stateSelected">
-                <option v-for="option in options" :key="option.value" :value="option.value">
-                    {{ option.text }}
+                <option v-for="option in states" :key="option.id" :value="option.id">
+                    {{ option.name }}
                 </option>
             </select>
         </div>
@@ -96,8 +84,9 @@ export default {
     data() {
         return {
             stateSelected: null,
+            states: [],
             houseId: this.$route.params.id,
-            house: {},
+            house: [],
             floors: [
                 {
                     id: null,
@@ -169,21 +158,6 @@ export default {
             });
         },
 
-        //use should fill both values for each floor
-        //if one of them is empty, the other one is empty too
-        isFloorDataDeleted() {
-            let valid = true;
-            this.floors.forEach(floor => {
-                if (floor.apartments_no == "" || floor.entrances == "") {
-                    floor.entrances = null;
-                    floor.apartments_no = null;
-                    valid = false;
-                }
-            });
-
-            return valid;
-        },
-
         fillFloorsObjArr() {
             this.house.floors.forEach((floorObj, index) => {
                 this.floors[index].id = floorObj['id'];
@@ -192,12 +166,17 @@ export default {
             });
         },
 
-        deleteNotInRangeAndNullValues() {
+        deleteNotInRangeAndZeroEmptyValues() {
             this.floors.forEach(floor => {
                 for (const [key, value] of Object.entries(floor)) {
                     delete floor.notInRange;
-                    if (!value) {
-                        delete floor[key];
+
+                    if (floor.apartments_no == "") {
+                        floor.apartments_no = 0;
+                    }
+
+                    if (floor.entrances == "") {
+                        floor.entrances = 0;
                     }
                 }
             });
@@ -213,11 +192,7 @@ export default {
                 return;
             }
 
-            if (!this.isFloorDataDeleted()) {
-                return;
-            }
-
-            this.deleteNotInRangeAndNullValues();
+            this.deleteNotInRangeAndZeroEmptyValues();
 
             this.showErrors = false;
 
@@ -229,23 +204,24 @@ export default {
 
             axios.post('/update-house', data)
                 .then((response) => {
-                    console.log(response);
                     if (response.status == 200) {
                         this.success = true;
                         this.resetVariables();
                     }
                 }).catch((error) => {
-                    let index = 0;
-                    for (const [key, value] of Object.entries(error.response.data.errors)) {
-                        for (const [key1, value1] of Object.entries(value)) {
-                        let temp = value1;
-                            if (temp.includes('apartments_no')) {
-                                temp = temp.replace(`floors.${index}.apartments_no`, `floor ${index+1} apartments no`);
-                            } else if (temp.includes('entrances')) {
-                                temp = temp.replace(`floors.${index}.entrances`, `floor ${index+1} entrances no`);
+                    if (error) {
+                        let index = 0;
+                        for (const [key, value] of Object.entries(error.response.data.error)) {
+                            for (const [key1, value1] of Object.entries(value)) {
+                            let temp = value1;
+                                if (temp.includes('apartments_no')) {
+                                    temp = temp.replace(`floors.${index}.apartments_no`, `floor ${index+1} apartments no`);
+                                } else if (temp.includes('entrances')) {
+                                    temp = temp.replace(`floors.${index}.entrances`, `floor ${index+1} entrances no`);
+                                }
+                                this.errors.push(temp);
+                                index++;   
                             }
-                            this.errors.push(temp);
-                            index++;   
                         }
                     }
                 });
@@ -255,7 +231,8 @@ export default {
             axios.get(`/load-house/${this.houseId}`)
                 .then((response)=>{
                     this.house = response.data.house;
-                    this.stateSelected = this.house.state_id;
+                    this.stateSelected = this.house.selected_state_id;
+                    this.states = this.house.states;
                     this.fillFloorsObjArr();
                 }).catch((error) => { 
                     if (error) {

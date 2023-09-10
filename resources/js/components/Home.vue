@@ -5,12 +5,12 @@
         <div class="houses-container">
             <div class="house" v-for="(house, index) in houses" :key="index">
                 <div class="details">
-                    <p>House {{ index+1 }}</p>
+                    <p class="bold">House {{ index + 1 }}</p>
                     <p>House state: {{ house.state }}</p>
-                    <p>Floors no: {{ house.floors.length }}</p>
+                    <p>Floors no: {{ countFloors(index) }}</p>
                     <div class="floors-container">
                         <div class="floor" v-for="(floor, index) in house.floors" :key="index">
-                            <p>Floor {{ index+ 1 }}: apartments: {{ floor.apartments_per_floor }}, entrances: {{ floor.entrances }}</p>
+                            <p v-if="floor.apartments_per_floor !== 0 || floor.entrances !== 0">Floor {{ index+ 1 }}: apartments: {{ floor.apartments_per_floor }}, entrances: {{ floor.entrances }}</p>
                         </div>
                     </div>
                 </div>
@@ -48,16 +48,14 @@
 
             > .details {
                 > .floors-container {
+                    margin-top: 15px;
                     > .floor {
                         padding: 10px 0px;
-                        & + .floor {
-                            border-top: 1px solid;
-                        }
                     }
                 }
 
                 > p + p {
-                    margin-top: 20px;
+                    margin-top: 10px;
                 }
             }
         }
@@ -77,6 +75,10 @@ import axios from 'axios';
         },
 
         methods: {
+            countFloors(index) {
+                return this.houses[index].floors.filter(prop => prop.apartments_per_floor !== 0 || prop.entrances !== 0).length;
+            },
+
             loadHouses() {
                 axios.get('/list')
                     .then((response)=>{
