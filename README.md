@@ -60,6 +60,7 @@ Define random data for tables columns
 ### Run application
 Fill .env file with database credentials
 
+run **npm run build** to build files
 run in terminal **php artisan serve**
 
 ### Download the project

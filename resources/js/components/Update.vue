@@ -210,17 +210,10 @@ export default {
                     }
                 }).catch((error) => {
                     if (error) {
-                        let index = 0;
-                        for (const [key, value] of Object.entries(error.response.data.error)) {
+                        for (const [key, value] of Object.entries(error.response.data.errors)) {
                             for (const [key1, value1] of Object.entries(value)) {
-                            let temp = value1;
-                                if (temp.includes('apartments_no')) {
-                                    temp = temp.replace(`floors.${index}.apartments_no`, `floor ${index+1} apartments no`);
-                                } else if (temp.includes('entrances')) {
-                                    temp = temp.replace(`floors.${index}.entrances`, `floor ${index+1} entrances no`);
-                                }
-                                this.errors.push(temp);
-                                index++;   
+                                let errorStr = value1.replace(/(\d+)+/g, function(match, number) { return parseInt(number)+1; });
+                                this.errors.push(errorStr);
                             }
                         }
                     }

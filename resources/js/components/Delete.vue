@@ -49,7 +49,7 @@ export default {
     },
 
     computed: {
-        countFloors(index) {
+        countFloors() {
             return this.house.floors.filter(prop => prop.apartments_per_floor !== 0 || prop.entrances !== 0).length;
         },
     },

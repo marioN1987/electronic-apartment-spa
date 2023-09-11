@@ -70,11 +70,7 @@ class HousesController extends Controller
             //if floor id exists means there is floor and update, otherwise create new one
             $floorId = isset($floorArr['id']) ? $floorArr['id'] : null;
 
-            //if user deleted floor
-            if ($floorId && (!(isset($floorArr['apartments_no']) && isset($floorArr['entrances'])))) {
-                Floor::where('id', $floorId)->delete();
-            //if floor id exists means there is floor and update
-            } else if ($floorId) {
+            if ($floorId) {
                 Floor::where([
                     ['house_id', $validated['house_id']], 
                     ['id', $floorId]
